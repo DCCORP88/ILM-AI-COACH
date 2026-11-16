@@ -1,0 +1,13 @@
+# Never upload secrets, local databases, raw source notes or local tooling to the host.
+.env
+.env.*
+!.env.example
+prisma/*.db
+prisma/*.db-journal
+coaching/source-notes/
+.next
+node_modules
+.claude
+.mcp.json
+tests
+*.log

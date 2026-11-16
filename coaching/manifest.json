@@ -1,0 +1,201 @@
+{
+  "_readme": "Index of coaching content the app may load. status: draft | approved. In production (COACH_CONTENT_LEVEL=approved) only approved files are sent to the model. Keep in sync with DOCUMENT_INDEX.md.",
+  "core": {
+    "file": "COACH_INSTRUCTIONS.md",
+    "version": "0.1",
+    "status": "draft"
+  },
+  "workflows": [
+    {
+      "id": "salon-policies",
+      "file": "workflows/salon-policies.md",
+      "version": "0.1",
+      "status": "draft",
+      "categories": [
+        "policies"
+      ],
+      "keywords": [
+        "deposit",
+        "cancel",
+        "no-show",
+        "no show",
+        "late",
+        "policy",
+        "policies",
+        "pay later",
+        "waiver"
+      ]
+    },
+    {
+      "id": "pricing",
+      "file": "workflows/pricing-and-price-rises.md",
+      "version": "0.1",
+      "status": "draft",
+      "categories": [
+        "pricing"
+      ],
+      "keywords": [
+        "price",
+        "pricing",
+        "charge",
+        "expensive",
+        "cheap",
+        "discount",
+        "raise",
+        "increase",
+        "cost"
+      ]
+    },
+    {
+      "id": "rebooking",
+      "file": "workflows/rebooking-and-retention.md",
+      "version": "0.1",
+      "status": "draft",
+      "categories": [
+        "retention",
+        "retail"
+      ],
+      "keywords": [
+        "rebook",
+        "retention",
+        "come back",
+        "repeat",
+        "regular",
+        "lapsed",
+        "aftercare",
+        "retail",
+        "quiet",
+        "empty"
+      ]
+    },
+    {
+      "id": "hiring",
+      "file": "workflows/hiring-and-team.md",
+      "version": "0.1",
+      "status": "draft",
+      "categories": [
+        "hiring"
+      ],
+      "keywords": [
+        "hire",
+        "hiring",
+        "staff",
+        "team",
+        "employee",
+        "burnt out",
+        "burnout",
+        "commission",
+        "wage",
+        "sop"
+      ]
+    },
+    {
+      "id": "finance",
+      "file": "workflows/finance-basics.md",
+      "version": "0.1",
+      "status": "draft",
+      "categories": [
+        "finance"
+      ],
+      "keywords": [
+        "tax",
+        "gst",
+        "profit",
+        "money",
+        "cash",
+        "pay myself",
+        "bookkeeping",
+        "xero",
+        "accountant"
+      ]
+    },
+    {
+      "id": "local-marketing",
+      "file": "workflows/local-salon-marketing.md",
+      "version": "0.1",
+      "status": "draft",
+      "categories": [
+        "local-marketing"
+      ],
+      "keywords": [
+        "more clients",
+        "new clients",
+        "local",
+        "google",
+        "review",
+        "partner",
+        "event",
+        "marketing",
+        "enquir"
+      ]
+    },
+    {
+      "id": "loyalty",
+      "file": "workflows/loyalty-programs.md",
+      "version": "0.1",
+      "status": "draft",
+      "categories": [
+        "loyalty"
+      ],
+      "keywords": [
+        "loyalty",
+        "referral",
+        "refer",
+        "reward",
+        "points",
+        "package",
+        "prepaid",
+        "vip"
+      ]
+    },
+    {
+      "id": "digital-marketing",
+      "file": "workflows/digital-marketing.md",
+      "version": "0.1",
+      "status": "draft",
+      "categories": [
+        "digital-marketing",
+        "email",
+        "meta-ads"
+      ],
+      "keywords": [
+        "instagram",
+        "content",
+        "post",
+        "reel",
+        "social",
+        "email",
+        "funnel",
+        "meta",
+        "facebook",
+        "ads",
+        "lead magnet",
+        "launch",
+        "online"
+      ]
+    },
+    {
+      "id": "course",
+      "file": "workflows/course-creation-and-launch.md",
+      "version": "0.1",
+      "status": "draft",
+      "categories": [
+        "course"
+      ],
+      "keywords": [
+        "course",
+        "teach",
+        "educator",
+        "student",
+        "launch",
+        "module",
+        "assessment",
+        "curriculum",
+        "enrol",
+        "waitlist",
+        "landing page",
+        "sell"
+      ]
+    }
+  ]
+}

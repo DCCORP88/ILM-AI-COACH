@@ -1,0 +1,13 @@
+node_modules
+.next
+.env
+.env.local
+prisma/*.db
+prisma/*.db-journal
+coaching/source-notes/
+*.log
+prisma/test.db
+.vercel
+.env*
+!.env.example
+prisma/dev.backup-*.db

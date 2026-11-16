@@ -1,0 +1,336 @@
+// GENERATED from prisma/schema.prisma by scripts/postgres-schema.mjs — do not edit by hand.
+// Beauty Business Coach — database schema.
+// Prototype uses SQLite. For production switch provider to "postgresql" (e.g. Supabase)
+// and keep every query scoped by businessId (see src/lib/data.ts).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL") // Supabase pooled connection (port 6543, ?pgbouncer=true)
+  directUrl = env("DIRECT_URL")   // Supabase direct connection (port 5432), used for schema changes
+}
+
+model Business {
+  id          String   @id @default(cuid())
+  name        String
+  isDemo      Boolean  @default(false) // synthetic demo data — always labelled in the UI
+  calendarToken String? @unique // private calendar-feed link (hashed); null = planner not connected
+  createdAt   DateTime @default(now())
+  users       User[]
+  profile     BusinessProfile?
+  projects    Project[]
+  messages    Message[]
+  tasks       Task[]
+  decisions   Decision[]
+  resources   Resource[]
+  versions    ResourceVersion[]
+  metrics     MetricEntry[]
+  goals       Goal[]
+  checkIns    CheckIn[]
+  steps       ProgramStep[]
+  reminderSettings ReminderSettings?
+  reminderLogs     ReminderLog[]
+  communityMember  CommunityMember?
+  communityPosts   CommunityPost[]
+  communityComments CommunityComment[]
+  communityLikes   CommunityLike[]
+  usage            UsageEvent[]
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  businessId   String
+  business     Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  createdAt    DateTime  @default(now())
+  sessions     Session[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+// Business-wide facts. Project-specific facts live on Project / Decision, never here.
+model BusinessProfile {
+  id               String   @id @default(cuid())
+  businessId       String   @unique
+  business         Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  pathway          String   // solo | educator | salon
+  otherPathways    String   @default("") // comma-separated
+  stage            String   @default("")
+  services         String   @default("")
+  location         String   @default("")
+  jurisdiction     String   @default("")
+  teamSize         String   @default("")
+  capacityPerWeek  String   @default("") // appointments per week the business can do
+  hoursPerWeek     String   @default("") // owner hours available for business work
+  marketingBudget  String   @default("") // business-wide monthly budget
+  primaryGoal      String   @default("")
+  preferences      String   @default("")
+  onboardedAt      DateTime?
+  updatedAt        DateTime @updatedAt
+}
+
+model Project {
+  id             String    @id @default(cuid())
+  businessId     String
+  business       Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  title          String
+  category       String    // e.g. pricing, retention, local-marketing, loyalty, digital-marketing, meta-ads, email, course, hiring, policies, finance, other
+  pathway        String    @default("")
+  goal           String    @default("")
+  stage          String    @default("Getting started")
+  targetDate     DateTime?
+  status         String    @default("active") // active | archived | completed
+  summary        String    @default("") // concise editable context summary
+  nextStep       String    @default("")
+  budget         String    @default("") // project-only budget; never overwrites the business budget
+  intake         String    @default("") // JSON answers to the project intake questions
+  intakeAt       DateTime?
+  stepKey        String    @default("") // program activity this project was started from
+  planAnalysis   String    @default("") // JSON: the coach's analysis and strategy from the accepted plan
+  planDraft      String    @default("") // JSON plan proposed by the coach, awaiting the owner's review
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  lastActivityAt DateTime  @default(now())
+  messages       Message[]
+  tasks          Task[]
+  decisions      Decision[]
+  resources      Resource[]
+  goals          Goal[]
+  metrics        MetricEntry[]
+}
+
+model Message {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  role       String   // user | assistant
+  content    String
+  meta       String   @default("") // JSON: mode, content files used, model
+  createdAt  DateTime @default(now())
+}
+
+model Task {
+  id          String    @id @default(cuid())
+  businessId  String
+  business    Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  projectId   String?
+  project     Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  title       String
+  detail      String    @default("")
+  dueDate     DateTime?
+  status      String    @default("todo") // todo | done
+  outcome     String    @default("") // what happened when it was done
+  isPriority  Boolean   @default(false)
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+model Decision {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  text       String
+  source     String   @default("owner") // owner | coach (saved by owner)
+  createdAt  DateTime @default(now())
+}
+
+model Resource {
+  id         String            @id @default(cuid())
+  businessId String
+  business   Business          @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  projectId  String?
+  project    Project?          @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  title      String
+  kind       String            @default("draft") // draft | script | sop | campaign | email | course-outline | plan
+  status     String            @default("draft") // draft | approved | sent-externally (owner marks)
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+  versions   ResourceVersion[]
+}
+
+model ResourceVersion {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  resourceId String
+  resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  version    Int
+  content    String
+  createdAt  DateTime @default(now())
+
+  @@unique([resourceId, version])
+}
+
+// A number the owner lodges for a period. projectId null = business-wide snapshot;
+// set = a result recorded against a project (e.g. enquiries from a campaign).
+model MetricEntry {
+  id          String   @id @default(cuid())
+  businessId  String
+  business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  projectId   String?
+  project     Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  metricKey   String
+  periodStart DateTime
+  periodEnd   DateTime
+  value       Float
+  source      String   @default("Manual entry")
+  note        String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([businessId, projectId, metricKey, periodStart, periodEnd])
+}
+
+model Goal {
+  id            String    @id @default(cuid())
+  businessId    String
+  business      Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  projectId     String
+  project       Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  metricKey     String
+  baselineValue Float?
+  baselineNote  String    @default("")
+  targetValue   Float?
+  targetDate    DateTime?
+  createdAt     DateTime  @default(now())
+}
+
+model CheckIn {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  weekOf     DateTime
+  completed  String   @default("")
+  blockers   String   @default("")
+  numbers    String   @default("")
+  priorities String   @default("")
+  createdAt  DateTime @default(now())
+}
+
+// Progress through the pathway program (training progress — kept separate from business results).
+model ProgramStep {
+  id          String    @id @default(cuid())
+  businessId  String
+  business    Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  stepKey     String
+  status      String    @default("not-started") // not-started | in-progress | done
+  note        String    @default("")
+  completedAt DateTime?
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([businessId, stepKey])
+}
+
+// Accountability reminders. Opt-in only; consent time recorded. Nothing is sent without a
+// configured provider (email: Resend, SMS: Twilio) — otherwise reminders are logged as previews.
+model ReminderSettings {
+  id            String    @id @default(cuid())
+  businessId    String    @unique
+  business      Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  emailOn       Boolean   @default(false)
+  smsOn         Boolean   @default(false)
+  phone         String    @default("") // mobile in international format, only if SMS is on
+  frequency     String    @default("weekly") // weekly | twice-weekly
+  dayOfWeek     Int       @default(1) // 0 = Sunday … 6 = Saturday (business's local week)
+  overdueAlerts Boolean   @default(true)
+  consentAt     DateTime?
+  updatedAt     DateTime  @updatedAt
+}
+
+model ReminderLog {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  channel    String   // email | sms
+  kind       String   // next-step kind
+  subject    String   @default("")
+  body       String
+  status     String   // sent | preview | failed
+  detail     String   @default("")
+  createdAt  DateTime @default(now())
+}
+
+// ---------- Community (shared between members by design) ----------
+// Only the member's chosen display name is shown. No business data, numbers or coach chats are
+// ever visible here, and the AI coach does not read community posts.
+model CommunityMember {
+  id          String   @id @default(cuid())
+  businessId  String   @unique
+  business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  displayName String
+  bio         String   @default("")
+  joinedAt    DateTime @default(now())
+  banned      Boolean  @default(false)
+}
+
+model CommunityPost {
+  id         String             @id @default(cuid())
+  businessId String
+  business   Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  category   String             @default("general") // wins | questions | marketing | education | general
+  body       String
+  pinned     Boolean            @default(false)
+  hidden     Boolean            @default(false) // hidden by a moderator
+  createdAt  DateTime           @default(now())
+  comments   CommunityComment[]
+  likes      CommunityLike[]
+  reports    CommunityReport[]
+}
+
+model CommunityComment {
+  id         String        @id @default(cuid())
+  postId     String
+  post       CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  businessId String
+  business   Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  body       String
+  hidden     Boolean       @default(false)
+  createdAt  DateTime      @default(now())
+}
+
+model CommunityLike {
+  id         String        @id @default(cuid())
+  postId     String
+  post       CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  businessId String
+  business   Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, businessId])
+}
+
+model CommunityReport {
+  id         String        @id @default(cuid())
+  postId     String
+  post       CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  commentId  String        @default("")
+  reporterId String // businessId of the reporter
+  reason     String
+  resolved   Boolean       @default(false)
+  createdAt  DateTime      @default(now())
+}
+
+// One row per AI coach request (chat answer or plan build), for daily usage limits and cost tracking.
+model UsageEvent {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  kind       String   // chat | plan
+  createdAt  DateTime @default(now())
+
+  @@index([businessId, createdAt])
+}

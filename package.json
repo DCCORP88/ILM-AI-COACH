@@ -1,0 +1,36 @@
+{
+  "name": "beauty-business-coach",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "db:push": "prisma db push",
+    "db:seed": "tsx prisma/seed.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "reminders": "tsx scripts/send-reminders.ts",
+    "vercel-build": "node scripts/postgres-schema.mjs && prisma generate --schema prisma/postgres/schema.prisma && next build",
+    "db:push:prod": "node scripts/postgres-schema.mjs && prisma db push --schema prisma/postgres/schema.prisma",
+    "postinstall": "prisma generate"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.8.0",
+    "@prisma/client": "^6.19.3",
+    "next": "^15.5.29",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "prisma": "^6.19.3",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "vercel": "^65.16.0",
+    "vitest": "^5.1.0"
+  }
+}
